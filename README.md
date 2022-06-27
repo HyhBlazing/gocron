@@ -23,10 +23,11 @@
 * 查看任务执行结果日志
 * 任务执行结果通知, 支持邮件、Slack、Webhook
 
-### 截图
-![流程图](https://raw.githubusercontent.com/ouqiang/gocron/master/assets/screenshot/scheduler.png)
-![任务](https://raw.githubusercontent.com/ouqiang/gocron/master/assets/screenshot/task.png)
-![Slack](https://raw.githubusercontent.com/ouqiang/gocron/master/assets/screenshot/notification.png)
+### 截图（以下图为新修改调整了下UI）
+![hyh_2022-06-27_21-14-22](https://user-images.githubusercontent.com/40458321/175952484-8d205190-082b-4868-ba2d-67f2aff84d76.jpg)
+![hyh_2022-06-27_21-14-41](https://user-images.githubusercontent.com/40458321/175952487-6445722a-0090-4b51-8f7b-f430dde34e55.jpg)
+![hyh_2022-06-27_21-15-09](https://user-images.githubusercontent.com/40458321/175952494-2518fd77-d127-41a6-a04e-e4362493bd51.jpg)
+
     
 ### 支持平台
 > Windows、Linux、Mac OS
@@ -35,8 +36,9 @@
 >  MySQL
 
 
-## 下载
-[releases](https://github.com/ouqiang/gocron/releases)  
+## 下载（除了增加了修改的下载链接，其他与原作者保持一致。）
+原作者版本：[releases](https://github.com/ouqiang/gocron/releases)  
+修改UI版本：[releases](https://github.com/HyhBlazing/gocron/releases) 
 
 [版本升级](https://github.com/ouqiang/gocron/wiki/版本升级)
 
