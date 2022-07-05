@@ -1,12 +1,3 @@
-# gocron - 定时任务管理系统
-[![Downloads](https://img.shields.io/github/downloads/ouqiang/gocron/total.svg)](https://github.com/ouqiang/gocron/releases)
-[![license](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)](https://github.com/ouqiang/gocron/blob/master/LICENSE)
-[![Release](https://img.shields.io/github/release/ouqiang/gocron.svg?label=Release)](https://github.com/ouqiang/gocron/releases)
-
-# 项目简介
-使用Go语言开发的轻量级定时任务集中调度和管理系统, 用于替代Linux-crontab [查看文档](https://github.com/ouqiang/gocron/wiki)
-
-原有的延时任务拆分为独立项目[延迟队列](https://github.com/ouqiang/delay-queue)  
 
 ## 功能特性
 * Web界面管理定时任务
@@ -28,9 +19,9 @@
 ![hyh_2022-06-27_21-14-41](https://user-images.githubusercontent.com/40458321/175952487-6445722a-0090-4b51-8f7b-f430dde34e55.jpg)
 ![hyh_2022-06-27_21-15-09](https://user-images.githubusercontent.com/40458321/175952494-2518fd77-d127-41a6-a04e-e4362493bd51.jpg)
 
-    
+
 ### 支持平台
-> Windows、Linux、Mac OS
+> Linux
 
 ### 环境要求
 >  MySQL
@@ -65,19 +56,6 @@
 - 启动
     * gocron `./bin/gocron web`
     * gocron-node `./bin/gocron-node`
-
-
-### docker
-
-```shell
-docker run --name gocron --link mysql:db -p 5920:5920 -d ouqg/gocron
-```
-
-配置: /app/conf/app.ini
-
-日志: /app/log/cron.log
-
-镜像不包含gocron-node, gocron-node需要和具体业务一起构建
 
 
 ### 开发
