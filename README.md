@@ -10,13 +10,13 @@ Modified by Blazing 2026
 
 # gocron - 定时任务管理系统
 
-[![Downloads](https://img.shields.io/github/downloads/ouqiang/gocron/total.svg)](https://github.com/ouqiang/gocron/releases)
-[![license](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)](https://github.com/ouqiang/gocron/blob/master/LICENSE)
-[![Release](https://img.shields.io/github/release/ouqiang/gocron.svg?label=Release)](https://github.com/ouqiang/gocron/releases)
+[![Downloads](https://img.shields.io/github/downloads/ouqiang/gocron/total.svg)](https://github.com/HyhBlazing/gocronreleases)
+[![license](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)](https://github.com/HyhBlazing/gocron/blob/master/LICENSE)
+[![Release](https://img.shields.io/github/release/ouqiang/gocron.svg?label=Release)](https://github.com/HyhBlazing/gocron/releases)
 
 # 项目简介
 
-使用Go语言开发的轻量级定时任务集中调度和管理系统, 用于替代Linux-crontab [查看文档](https://github.com/ouqiang/gocron/wiki)
+使用Go语言开发的轻量级定时任务集中调度和管理系统, 用于替代Linux-crontab
 
 原有的延时任务拆分为独立项目[延迟队列](https://github.com/ouqiang/delay-queue)
 
@@ -34,17 +34,31 @@ Modified by Blazing 2026
   - HTTP任务
     > 访问指定的URL地址, 由调度器直接执行, 不依赖任务节点
 - 查看任务执行结果日志
-- 任务执行结果通知, 支持邮件、Slack、Webhook
+- 任务执行结果通知, 支持邮件、Webhook
 
 ### 截图
 
 ![流程图](https://raw.githubusercontent.com/ouqiang/gocron/master/assets/screenshot/scheduler.png)
-![任务](https://raw.githubusercontent.com/ouqiang/gocron/master/assets/screenshot/task.png)
-![Slack](https://raw.githubusercontent.com/ouqiang/gocron/master/assets/screenshot/notification.png)
+所有定时列表
+<img width="2561" height="1919" alt="image" src="https://github.com/user-attachments/assets/a369bdce-dab7-4bd1-b81e-15cacbfb3b32" />
+定时详情
+<img width="1332" height="568" alt="image" src="https://github.com/user-attachments/assets/904bf962-8bd8-42a1-bd7c-7b961bcad242" />
+定时列表日志
+<img width="1534" height="971" alt="image" src="https://github.com/user-attachments/assets/91d83cc2-7bd4-4031-a175-8118c429f214" />
+定时编辑
+<img width="2561" height="1919" alt="image" src="https://github.com/user-attachments/assets/f6ca99ab-19bc-4d24-a50b-cbad2d041617" />
+定时日志列表
+<img width="2561" height="1919" alt="image" src="https://github.com/user-attachments/assets/4059b097-56ff-4ecb-b3f9-04f6c102d501" />
+定时日志详情
+<img width="1205" height="526" alt="image" src="https://github.com/user-attachments/assets/e3933132-5ec1-42b9-a1c4-b904a92851cd" />
+定时日志执行结果
+<img width="1222" height="540" alt="image" src="https://github.com/user-attachments/assets/d8e0ba88-cc92-4f21-9fb9-b527a2475be2" />
+统计部分
+<img width="2561" height="1919" alt="image" src="https://github.com/user-attachments/assets/fdb31d76-affd-48f6-a85c-585aa2d6e6f8" />
 
 ### 支持平台
 
-> Windows、Linux、Mac OS
+> Linux
 
 ### 环境要求
 
@@ -52,9 +66,7 @@ Modified by Blazing 2026
 
 ## 下载
 
-[releases](https://github.com/ouqiang/gocron/releases)
-
-[版本升级](https://github.com/ouqiang/gocron/wiki/版本升级)
+[releases](https://github.com/HyhBlazing/gocron/releases)
 
 ## 安装
 
@@ -65,98 +77,46 @@ Modified by Blazing 2026
 3. 启动
 
 - 调度器启动
-  - Windows: `gocron.exe web`
   - Linux、Mac OS: `./gocron web`
 - 任务节点启动, 默认监听0.0.0.0:5921
-  - Windows: `gocron-node.exe`
   - Linux、Mac OS: `./gocron-node`
 
 4. 浏览器访问 http://localhost:5920
 
-### 源码安装
-
-- 安装Go 1.11+
-- `go get -d github.com/ouqiang/gocron`
-- `export GO111MODULE=on`
-- 编译 `make`
-- 启动
-  - gocron `./bin/gocron web`
-  - gocron-node `./bin/gocron-node`
-
-### docker
-
-```shell
-docker run --name gocron --link mysql:db -p 5920:5920 -d ouqg/gocron
-```
-
-配置: /app/conf/app.ini
-
-日志: /app/log/cron.log
-
-镜像不包含gocron-node, gocron-node需要和具体业务一起构建
-
-### 开发
-
-1. 安装Go1.9+, Node.js, Yarn
-2. 安装前端依赖 `make install-vue`
-3. 启动gocron, gocron-node `make run`
-4. 启动node server `make run-vue`, 访问地址 http://localhost:8080
-
-访问http://localhost:8080, API请求会转发给gocron
-
-`make` 编译
-
-`make run` 编译并运行
-
-`make package` 打包
-
-> 生成当前系统的压缩包 gocron-v1.5-darwin-amd64.tar.gz gocron-node-v1.5-darwin-amd64.tar.gz
-
-`make package-all` 生成Windows、Linux、Mac的压缩包
-
-### 命令
-
-- gocron
-  - -v 查看版本
-
-- gocron web
-  - --host 默认0.0.0.0
-  - -p 端口, 指定端口, 默认5920
-  - -e 指定运行环境, dev|test|prod, dev模式下可查看更多日志信息, 默认prod
-  - -h 查看帮助
-- gocron-node
-  - -allow-root \*nix平台允许以root用户运行
-  - -s ip:port 监听地址
-  - -enable-tls 开启TLS
-  - -ca-file   CA证书文件  
-  - -cert-file 证书文件
-  - -key-file 私钥文件
-  - -h 查看帮助
-  - -v 查看版本
-
-## To Do List
-
-- [x] 版本升级
-- [x] 批量开启、关闭、删除任务
-- [x] 调度器与任务节点通信支持https
-- [x] 任务分组
-- [x] 多用户
-- [x] 权限控制
-
-## 程序使用的组件
-
-- Web框架 [Macaron](http://go-macaron.com/)
-- 定时任务调度 [Cron](https://github.com/robfig/cron)
-- ORM [Xorm](https://github.com/go-xorm/xorm)
-- UI框架 [Element UI](https://github.com/ElemeFE/element)
-- 依赖管理 [Govendor](https://github.com/kardianos/govendor)
-- RPC框架 [gRPC](https://github.com/grpc/grpc)
-
 ## 反馈
 
-提交[issue](https://github.com/ouqiang/gocron/issues/new)
+提交[issue](https://github.com/HyhBlazing/gocron/issues/new)
 
 ## ChangeLog
+
+## v1.5.6
+- 所有定时
+  - 定时名称：定时名称、定时ID、标签、创建时间，放在了一列。
+  - cron表达式：支持了查看未来10次执行时间，鼠标悬浮可以复制
+  - 筛选项
+    - 名称ID筛选：支持了定时ID和定时名称的筛选
+    - 支持标签列表下拉，支持搜索
+  - 详情部分修改为按钮模态窗打开
+  - 增加日志当前页面模态窗打开
+- 定时日志
+  - 筛选项
+    - 支持定时ID、定时名称筛选
+    - 支持标签列表下拉，支持搜索
+  - 在列表增加了任务对应标签的查看
+  - 日志详情通过模态窗打开
+  - 日志结果通过模态窗打开
+- 通知配置
+  - 去掉了Slack的配置，我没用过，所以隐藏掉了
+- 节点管理
+  - 记忆中好像没做更改
+- 用户管理
+  - 增加了角色筛选
+  - 增加邮箱搜索
+- 登录日志
+  - 增加了用户名、登录IP的搜索
+- 统计
+  - 查询所有定时总数、日志总数、用户总数、登录日志总数
+  - 也有部分分析的，可以看图。
 
 ## v1.5
 
