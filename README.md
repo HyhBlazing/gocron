@@ -1,50 +1,71 @@
-本项目基于 [gocron](https://github.com/ouqiang/gocron) 项目修改
-
-原作者：[ouqiang](https://github.com/ouqiang)
-
-采用 MIT License
-
-Copyright (c) 2017 qiang.ou
-
-Modified by Blazing 2026
-
 # gocron - 定时任务管理系统
 
+> 本项目基于 [ouqiang/gocron](https://github.com/ouqiang/gocron) 修改开发  
+> 原作者：[@ouqiang](https://github.com/ouqiang)  
+> License：MIT License  
+> Copyright (c) 2017 qiang.ou  
+> Modified by Blazing (2026)
+
+---
+
 [![Downloads](https://img.shields.io/github/downloads/HyhBlazing/gocron/total.svg)](https://github.com/HyhBlazing/gocron/releases)
-[![license](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)](https://github.com/HyhBlazing/gocron/blob/master/LICENSE)
+[![License](https://img.shields.io/github/license/HyhBlazing/gocron.svg)](https://github.com/HyhBlazing/gocron/blob/master/LICENSE)
 [![Release](https://img.shields.io/github/release/HyhBlazing/gocron.svg?label=Release)](https://github.com/HyhBlazing/gocron/releases)
+
+---
 
 # 项目简介
 
-使用Go语言开发的轻量级定时任务集中调度和管理系统, 用于替代Linux-crontab
+使用 Go 语言开发的轻量级定时任务集中调度与管理系统，用于替代 Linux Crontab。
 
-原有的延时任务拆分为独立项目[延迟队列](https://github.com/ouqiang/delay-queue)
+原项目中的延迟任务已拆分为独立项目：[delay-queue](https://github.com/ouqiang/delay-queue)
+
+
+---
 
 ## 功能特性
 
-- Web界面管理定时任务
-- crontab时间表达式, 精确到秒
-- 任务执行失败可重试
-- 任务执行超时, 强制结束
-- 任务依赖配置, A任务完成后再执行B任务
+### 核心能力
+
+- Web 界面集中管理定时任务
+- 支持 Crontab 表达式（精确到秒）
+- 任务失败自动重试
+- 任务超时强制终止
+- 任务依赖配置（A 任务完成后执行 B 任务）
 - 账户权限控制
-- 任务类型
-  - shell任务
-    > 在任务节点上执行shell命令, 支持任务同时在多个节点上运行
-  - HTTP任务
-    > 访问指定的URL地址, 由调度器直接执行, 不依赖任务节点
-- 查看任务执行结果日志
-- 任务执行结果通知, 支持邮件、Webhook
+- 任务执行日志查询
+- 执行结果通知（支持邮件、Webhook）
+
+---
+
+### 任务类型
+
+#### Shell 任务
+
+> 在任务节点上执行 Shell 命令  
+> 支持多个节点同时执行
+
+#### HTTP 任务
+
+> 由调度器直接发起 HTTP 请求  
+> 不依赖任务节点
+
+---
 
 ### 截图
 
+### 调度流程
+
 ![流程图](https://raw.githubusercontent.com/ouqiang/gocron/master/assets/screenshot/scheduler.png)
 
-所有定时列表
+---
+
+### 所有定时列表
 <img width="2561" height="1919" alt="image" src="https://github.com/user-attachments/assets/a369bdce-dab7-4bd1-b81e-15cacbfb3b32" />
 
-定时详情
-<img width="1332" height="568" alt="image" src="https://github.com/user-attachments/assets/904bf962-8bd8-42a1-bd7c-7b961bcad242" />
+### 定时详情
+
+![定时详情](https://github.com/user-attachments/assets/904bf962-8bd8-42a1-bd7c-7b961bcad242)
 
 定时列表日志
 <img width="1534" height="971" alt="image" src="https://github.com/user-attachments/assets/91d83cc2-7bd4-4031-a175-8118c429f214" />
@@ -52,38 +73,52 @@ Modified by Blazing 2026
 定时编辑
 <img width="2561" height="1919" alt="image" src="https://github.com/user-attachments/assets/f6ca99ab-19bc-4d24-a50b-cbad2d041617" />
 
-定时日志列表
-<img width="2561" height="1919" alt="image" src="https://github.com/user-attachments/assets/4059b097-56ff-4ecb-b3f9-04f6c102d501" />
+### 定时日志列表
 
-定时日志详情
+![日志列表](https://github.com/user-attachments/assets/4059b097-56ff-4ecb-b3f9-04f6c102d501)
+
+### 定时日志详情
+
 <img width="1205" height="526" alt="image" src="https://github.com/user-attachments/assets/e3933132-5ec1-42b9-a1c4-b904a92851cd" />
 
-定时日志执行结果
+### 定时日志执行结果
 <img width="1222" height="540" alt="image" src="https://github.com/user-attachments/assets/d8e0ba88-cc92-4f21-9fb9-b527a2475be2" />
 
-统计部分
-<img width="2561" height="1919" alt="image" src="https://github.com/user-attachments/assets/fdb31d76-affd-48f6-a85c-585aa2d6e6f8" />
+### 统计模块
 
-### 支持平台
+![统计](https://github.com/user-attachments/assets/fdb31d76-affd-48f6-a85c-585aa2d6e6f8)
 
-> Linux
+---
 
-### 环境要求
+## 支持平台
 
-> MySQL
+- Linux
+
+---
+
+## 环境要求
+
+- MySQL
+
+---
 
 ## 下载
 
-[releases](https://github.com/HyhBlazing/gocron/releases)
+[Releases](https://github.com/HyhBlazing/gocron/releases)
 
-## 安装
+---
+
+## 安装说明
 
 ### 二进制安装
 
-1. 解压压缩包  
-2. `cd 解压目录`
-3. 启动
+1. 解压压缩包  
+2. 进入解压目录：
 
+```bash
+cd gocron
+```
+3. 启动服务
 - 调度器启动
   - Linux、Mac OS: `./gocron web`
 - 任务节点启动, 默认监听0.0.0.0:5921
