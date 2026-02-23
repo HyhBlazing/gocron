@@ -2,7 +2,7 @@ import httpClient from '../utils/httpClient'
 
 export default {
   // 任务列表
-  list (query, callback) {
+  list (query, callback, onError) {
     httpClient.batchGet([
       {
         uri: '/task',
@@ -11,7 +11,7 @@ export default {
       {
         uri: '/host/all'
       }
-    ], callback)
+    ], callback, onError)
   },
 
   detail (id, callback) {
@@ -43,5 +43,11 @@ export default {
 
   run (id, callback) {
     httpClient.get(`/task/run/${id}`, {}, callback)
+  },
+  tags (query, callback, onError) {
+    httpClient.get('/task/tags', query || {}, callback, onError)
+  },
+  nextRuns (spec, callback, onError) {
+    httpClient.get('/task/next-runs', { spec }, callback, onError)
   }
 }

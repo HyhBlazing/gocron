@@ -14,8 +14,9 @@ import (
 )
 
 const (
-	backOffMaxDelay = 3 * time.Second
-	dialTimeout     = 2 * time.Second
+	backOffMaxDelay   = 3 * time.Second
+	dialTimeout       = 2 * time.Second
+	defaultMaxMsgSize = 32 * 1024 * 1024 // 32MB，任务输出可能较大
 )
 
 var (
@@ -81,6 +82,7 @@ func (p *GRPCPool) factory(addr string) (*Client, error) {
 	opts := []grpc.DialOption{
 		grpc.WithKeepaliveParams(keepAliveParams),
 		grpc.WithBackoffMaxDelay(backOffMaxDelay),
+		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(defaultMaxMsgSize), grpc.MaxCallSendMsgSize(defaultMaxMsgSize)),
 	}
 
 	if !app.Setting.EnableTLS {

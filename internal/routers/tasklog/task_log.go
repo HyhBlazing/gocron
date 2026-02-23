@@ -1,6 +1,6 @@
 package tasklog
 
-// 任务日志
+// 定时日志
 
 import (
 	"github.com/ouqiang/gocron/internal/models"
@@ -86,6 +86,8 @@ func Remove(ctx *macaron.Context) string {
 func parseQueryParams(ctx *macaron.Context) models.CommonMap {
 	var params models.CommonMap = models.CommonMap{}
 	params["TaskId"] = ctx.QueryInt("task_id")
+	params["Keyword"] = ctx.QueryTrim("keyword")
+	params["Tag"] = ctx.QueryTrim("tag")
 	params["Protocol"] = ctx.QueryInt("protocol")
 	status := ctx.QueryInt("status")
 	if status >= 0 {

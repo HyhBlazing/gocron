@@ -2,6 +2,7 @@ package user
 
 import (
 	"errors"
+	"net"
 	"strings"
 	"time"
 
@@ -14,7 +15,7 @@ import (
 	"gopkg.in/macaron.v1"
 )
 
-const tokenDuration = 4 * time.Hour
+const tokenDuration = 7 * 24 * time.Hour
 
 // UserForm 用户表单
 type UserForm struct {
@@ -35,7 +36,7 @@ func Index(ctx *macaron.Context) string {
 	if err != nil {
 		logger.Error(err)
 	}
-	total, err := userModel.Total()
+	total, err := userModel.Total(queryParams)
 	if err != nil {
 		logger.Error(err)
 	}
@@ -51,6 +52,13 @@ func Index(ctx *macaron.Context) string {
 // 解析查询参数
 func parseQueryParams(ctx *macaron.Context) models.CommonMap {
 	params := models.CommonMap{}
+	params["Name"] = ctx.QueryTrim("name")
+	params["Email"] = ctx.QueryTrim("email")
+	isAdmin := ctx.QueryInt("is_admin")
+	if isAdmin >= 0 {
+		isAdmin -= 1
+	}
+	params["IsAdmin"] = isAdmin
 	base.ParsePageAndPageSize(ctx, params)
 
 	return params
@@ -163,7 +171,7 @@ func changeStatus(ctx *macaron.Context, status models.Status) string {
 	json := utils.JsonResponse{}
 	userModel := new(models.User)
 	_, err := userModel.Update(id, models.CommonMap{
-		"status": status,
+		"Status": status,
 	})
 	if err != nil {
 		return json.CommonFailure(utils.FailureContent, err)
@@ -234,7 +242,7 @@ func ValidateLogin(ctx *macaron.Context) string {
 	}
 	loginLogModel := new(models.LoginLog)
 	loginLogModel.Username = userModel.Name
-	loginLogModel.Ip = ctx.RemoteAddr()
+	loginLogModel.Ip = getClientIP(ctx)
 	_, err := loginLogModel.Create()
 	if err != nil {
 		logger.Error("记录用户登录日志失败", err)
@@ -252,6 +260,54 @@ func ValidateLogin(ctx *macaron.Context) string {
 		"username": userModel.Name,
 		"is_admin": userModel.IsAdmin,
 	})
+}
+
+func getClientIP(ctx *macaron.Context) string {
+	// 反向代理场景优先从头里拿真实IP
+	candidates := []string{
+		ctx.Req.Header.Get("X-Forwarded-For"),
+		ctx.Req.Header.Get("X-Real-IP"),
+		ctx.Req.Header.Get("X-Forwarded"),
+		ctx.RemoteAddr(),
+	}
+	for _, raw := range candidates {
+		ip := normalizeIP(raw)
+		if ip != "" {
+			return ip
+		}
+	}
+	return ""
+}
+
+func normalizeIP(raw string) string {
+	value := strings.TrimSpace(raw)
+	if value == "" {
+		return ""
+	}
+	// X-Forwarded-For 可能是逗号分隔，取首个真实地址
+	if strings.Contains(value, ",") {
+		parts := strings.Split(value, ",")
+		for _, part := range parts {
+			ip := normalizeIP(part)
+			if ip != "" {
+				return ip
+			}
+		}
+		return ""
+	}
+	value = strings.Trim(value, "\"")
+	if strings.EqualFold(value, "unknown") {
+		return ""
+	}
+	// RemoteAddr 常见格式 ip:port
+	if host, _, err := net.SplitHostPort(value); err == nil {
+		value = host
+	}
+	value = strings.Trim(value, "[]")
+	if net.ParseIP(value) != nil {
+		return value
+	}
+	return ""
 }
 
 // Username 获取session中的用户名

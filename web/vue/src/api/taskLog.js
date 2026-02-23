@@ -1,8 +1,8 @@
 import httpClient from '../utils/httpClient'
 
 export default {
-  list (query, callback) {
-    httpClient.get('/task/log', query, callback)
+  list (query, callback, onError) {
+    httpClient.get('/task/log', query, callback, onError)
   },
 
   clear (callback) {

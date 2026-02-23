@@ -1,8 +1,8 @@
 import httpClient from '../utils/httpClient'
 
 export default {
-  list (query, callback) {
-    httpClient.get('/user', {}, callback)
+  list (query, callback, onError) {
+    httpClient.get('/user', query || {}, callback, onError)
   },
 
   detail (id, callback) {
@@ -13,8 +13,8 @@ export default {
     httpClient.post('/user/store', data, callback)
   },
 
-  login (username, password, callback) {
-    httpClient.post('/user/login', {username, password}, callback)
+  login (username, password, callback, onError) {
+    httpClient.post('/user/login', { username, password }, callback, onError)
   },
 
   enable (id, callback) {

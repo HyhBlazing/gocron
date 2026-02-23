@@ -21,10 +21,9 @@ import (
 	"github.com/ouqiang/gocron/internal/routers/task"
 	"github.com/ouqiang/gocron/internal/routers/tasklog"
 	"github.com/ouqiang/gocron/internal/routers/user"
+	_ "github.com/ouqiang/gocron/internal/statik"
 	"github.com/rakyll/statik/fs"
 	"gopkg.in/macaron.v1"
-
-	_ "github.com/ouqiang/gocron/internal/statik"
 )
 
 const (
@@ -44,20 +43,31 @@ func init() {
 
 // Register 路由注册
 func Register(m *macaron.Macaron) {
-	m.SetURLPrefix(urlPrefix)
 	// 所有GET方法，自动注册HEAD方法
 	m.SetAutoHead(true)
-	m.Get("/", func(ctx *macaron.Context) {
+	serveIndexHTML := func(ctx *macaron.Context) {
 		file, err := statikFS.Open("/index.html")
 		if err != nil {
 			logger.Error("读取首页文件失败: %s", err)
 			ctx.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-
 		io.Copy(ctx.Resp, file)
+	}
 
+	m.Get("/", serveIndexHTML)
+	// Hash 模式下，当应用部署在 /task 等子路径时，刷新页面会请求该路径，需返回 SPA 入口
+	m.Get("/task/public/*", serveTaskStatic)
+	m.Get("/task/static/*", serveTaskStatic)
+
+	m.Get("/install", func(ctx *macaron.Context) {
+		ctx.Redirect("/#/install")
 	})
+	m.Get("/user/login", func(ctx *macaron.Context) {
+		ctx.Redirect("/#/user/login")
+	})
+
+	m.SetURLPrefix(urlPrefix)
 	// 系统安装
 	m.Group("/install", func() {
 		m.Post("/store", binding.Bind(install.InstallForm{}), install.Store)
@@ -83,6 +93,8 @@ func Register(m *macaron.Macaron) {
 	// 定时任务
 	m.Group("/task", func() {
 		m.Post("/store", binding.Bind(task.TaskForm{}), task.Store)
+		m.Get("/next-runs", task.NextRuns)
+		m.Get("/tags", task.Tags)
 		m.Get("/:id", task.Detail)
 		m.Get("", task.Index)
 		m.Get("/log", tasklog.Index)
@@ -123,6 +135,8 @@ func Register(m *macaron.Macaron) {
 			m.Post("/update", manage.UpdateWebHook)
 		})
 		m.Get("/login-log", loginlog.Index)
+		m.Get("/login-log/users", loginlog.Usernames)
+		m.Get("/stats", manage.Stats)
 	})
 
 	// API
@@ -162,6 +176,24 @@ func RegisterMiddleware(m *macaron.Macaron) {
 			},
 		),
 	)
+	m.Use(
+		macaron.Static(
+			"",
+			macaron.StaticOptions{
+				Prefix:     "static",
+				FileSystem: statikFS,
+			},
+		),
+	)
+	m.Use(
+		macaron.Static(
+			"",
+			macaron.StaticOptions{
+				Prefix:     "static",
+				FileSystem: statikFS,
+			},
+		),
+	)
 	if macaron.Env == macaron.DEV {
 		m.Use(toolbox.Toolboxer(m))
 	}
@@ -174,12 +206,40 @@ func RegisterMiddleware(m *macaron.Macaron) {
 
 // region 自定义中间件
 
+// serveTaskStatic 当应用部署在 /task 子路径时，将 /task/public/* 和 /task/static/* 映射到对应的静态资源
+func serveTaskStatic(ctx *macaron.Context) {
+	path := ctx.Req.URL.Path
+	var fsPath string
+	if strings.HasPrefix(path, "/task/public/") {
+		fsPath = "/public/" + strings.TrimPrefix(path, "/task/public/")
+	} else if strings.HasPrefix(path, "/task/static/") {
+		fsPath = "/static/" + strings.TrimPrefix(path, "/task/static/")
+	} else if path == "/task/public" || path == "/task/public/" || path == "/task/static" || path == "/task/static/" {
+		ctx.NotFound()
+		return
+	} else {
+		return
+	}
+	file, err := statikFS.Open(fsPath)
+	if err != nil {
+		ctx.NotFound()
+		return
+	}
+	defer file.Close()
+	info, err := file.Stat()
+	if err != nil || info.IsDir() {
+		ctx.NotFound()
+		return
+	}
+	io.Copy(ctx.Resp, file)
+}
+
 /** 检测应用是否已安装 **/
 func checkAppInstall(ctx *macaron.Context) {
 	if app.Installed {
 		return
 	}
-	if strings.HasPrefix(ctx.Req.URL.Path, "/install") || ctx.Req.URL.Path == "/" {
+	if ctx.Req.URL.Path == "/" || strings.HasPrefix(ctx.Req.URL.Path, "/install") || strings.HasPrefix(ctx.Req.URL.Path, urlPrefix+"/install") {
 		return
 	}
 	jsonResp := utils.JsonResponse{}
@@ -220,10 +280,16 @@ func userAuth(ctx *macaron.Context) {
 		return
 	}
 	uri := strings.TrimRight(ctx.Req.URL.Path, "/")
-	if strings.HasPrefix(uri, "/v1") {
+	if strings.HasPrefix(uri, "/v1") || strings.HasPrefix(uri, urlPrefix+"/v1") {
 		return
 	}
-	excludePaths := []string{"", "/user/login", "/install/status"}
+	if strings.HasPrefix(uri, "/static") || strings.HasPrefix(uri, "/public") {
+		return
+	}
+	if strings.HasPrefix(uri, "/task/public") || strings.HasPrefix(uri, "/task/static") {
+		return
+	}
+	excludePaths := []string{"", "/task", "/user/login", "/install/status", urlPrefix + "/user/login", urlPrefix + "/install/status"}
 	for _, path := range excludePaths {
 		if uri == path {
 			return
@@ -244,7 +310,13 @@ func urlAuth(ctx *macaron.Context) {
 		return
 	}
 	uri := strings.TrimRight(ctx.Req.URL.Path, "/")
-	if strings.HasPrefix(uri, "/v1") {
+	if strings.HasPrefix(uri, "/v1") || strings.HasPrefix(uri, urlPrefix+"/v1") {
+		return
+	}
+	if strings.HasPrefix(uri, "/static") || strings.HasPrefix(uri, "/public") {
+		return
+	}
+	if strings.HasPrefix(uri, "/task/public") || strings.HasPrefix(uri, "/task/static") {
 		return
 	}
 	// 普通用户允许访问的URL地址
@@ -257,6 +329,14 @@ func urlAuth(ctx *macaron.Context) {
 		"/host/all",
 		"/user/login",
 		"/user/editMyPassword",
+		urlPrefix + "/install/status",
+		urlPrefix + "/task",
+		urlPrefix + "/task/next-runs",
+		urlPrefix + "/task/log",
+		urlPrefix + "/host",
+		urlPrefix + "/host/all",
+		urlPrefix + "/user/login",
+		urlPrefix + "/user/editMyPassword",
 	}
 	for _, path := range allowPaths {
 		if path == uri {

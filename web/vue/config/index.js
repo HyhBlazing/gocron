@@ -13,6 +13,7 @@ module.exports = {
     proxyTable: {
       '/api': {
         target: 'http://localhost:5920',
+        // target: 'https://cron.souxiu.cn/',
         changeOrigin: true,
         pathRewrite: {
           '^/api': '/api'
@@ -58,7 +59,7 @@ module.exports = {
     // Paths
     assetsRoot: path.resolve(__dirname, '../dist'),
     assetsSubDirectory: 'static',
-    assetsPublicPath: 'public/',
+    assetsPublicPath: '/public/',
 
     /**
      * Source Maps

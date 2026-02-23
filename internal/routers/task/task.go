@@ -3,6 +3,7 @@ package task
 import (
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/ouqiang/goutil"
 
@@ -72,6 +73,48 @@ func Index(ctx *macaron.Context) string {
 	})
 }
 
+// Tags 返回标签筛选项
+func Tags(ctx *macaron.Context) string {
+	taskModel := new(models.Task)
+	tags, err := taskModel.TagList()
+	jsonResp := utils.JsonResponse{}
+	if err != nil {
+		logger.Error(err)
+		return jsonResp.CommonFailure("查询标签失败", err)
+	}
+	if tags == nil {
+		tags = make([]string, 0)
+	}
+	return jsonResp.Success(utils.SuccessContent, tags)
+}
+
+// NextRuns 根据 cron 表达式返回未来十次执行时间
+func NextRuns(ctx *macaron.Context) string {
+	json := utils.JsonResponse{}
+	spec := strings.TrimSpace(ctx.QueryTrim("spec"))
+	if spec == "" {
+		return json.CommonFailure("cron 表达式不能为空")
+	}
+	var schedule cron.Schedule
+	err := goutil.PanicToError(func() {
+		schedule = cron.Parse(spec)
+	})
+	if err != nil || schedule == nil {
+		return json.CommonFailure("crontab 表达式解析失败")
+	}
+	from := time.Now()
+	result := make([]string, 0, 10)
+	for i := 0; i < 10; i++ {
+		next := schedule.Next(from)
+		if next.IsZero() {
+			break
+		}
+		result = append(result, next.Format("2006-01-02 15:04:05"))
+		from = next
+	}
+	return json.Success("", result)
+}
+
 // Detail 任务详情
 func Detail(ctx *macaron.Context) string {
 	id := ctx.ParamsInt(":id")
@@ -79,7 +122,7 @@ func Detail(ctx *macaron.Context) string {
 	task, err := taskModel.Detail(id)
 	jsonResp := utils.JsonResponse{}
 	if err != nil || task.Id == 0 {
-		logger.Errorf("编辑任务#获取任务详情失败#任务ID-%d", id)
+		logger.Errorf("编辑任务#获取任务详情失败#定时ID-%d", id)
 		return jsonResp.Success(utils.SuccessContent, nil)
 	}
 
@@ -96,7 +139,7 @@ func Store(ctx *macaron.Context, form TaskForm) string {
 		return json.CommonFailure(utils.FailureContent, err)
 	}
 	if nameExists {
-		return json.CommonFailure("任务名称已存在")
+		return json.CommonFailure("定时名称已存在")
 	}
 
 	if form.Protocol == models.TaskRPC && form.HostId == "" {
@@ -242,7 +285,7 @@ func Run(ctx *macaron.Context) string {
 	task.Spec = "手动运行"
 	service.ServiceTask.Run(task)
 
-	return json.Success("任务已开始运行, 请到任务日志中查看结果", nil)
+	return json.Success("任务已开始运行, 请到定时日志中查看结果", nil)
 }
 
 // 改变任务状态
@@ -251,7 +294,7 @@ func changeStatus(ctx *macaron.Context, status models.Status) string {
 	json := utils.JsonResponse{}
 	taskModel := new(models.Task)
 	_, err := taskModel.Update(id, models.CommonMap{
-		"status": status,
+		"Status": status,
 	})
 	if err != nil {
 		return json.CommonFailure(utils.FailureContent, err)
@@ -284,6 +327,7 @@ func parseQueryParams(ctx *macaron.Context) models.CommonMap {
 	params["Id"] = ctx.QueryInt("id")
 	params["HostId"] = ctx.QueryInt("host_id")
 	params["Name"] = ctx.QueryTrim("name")
+	params["Keyword"] = ctx.QueryTrim("keyword")
 	params["Protocol"] = ctx.QueryInt("protocol")
 	params["Tag"] = ctx.QueryTrim("tag")
 	status := ctx.QueryInt("status")

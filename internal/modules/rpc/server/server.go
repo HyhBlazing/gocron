@@ -55,9 +55,12 @@ func Start(addr string, enableTLS bool, certificate auth.Certificate) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	maxMsgSize := 32 * 1024 * 1024 // 32MB，任务输出可能较大
 	opts := []grpc.ServerOption{
 		grpc.KeepaliveParams(keepAliveParams),
 		grpc.KeepaliveEnforcementPolicy(keepAlivePolicy),
+		grpc.MaxRecvMsgSize(maxMsgSize),
+		grpc.MaxSendMsgSize(maxMsgSize),
 	}
 	if enableTLS {
 		tlsConfig, err := certificate.GetTLSConfigForServer()

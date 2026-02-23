@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"strconv"
 	"strings"
 	"time"
 
@@ -39,9 +40,9 @@ const (
 // 任务
 type Task struct {
 	Id               int                  `json:"id" xorm:"int pk autoincr"`
-	Name             string               `json:"name" xorm:"varchar(32) notnull"`                            // 任务名称
+	Name             string               `json:"name" xorm:"varchar(32) notnull"`                            // 定时名称
 	Level            TaskLevel            `json:"level" xorm:"tinyint notnull index default 1"`               // 任务等级 1: 主任务 2: 依赖任务
-	DependencyTaskId string               `json:"dependency_task_id" xorm:"varchar(64) notnull default ''"`   // 依赖任务ID,多个ID逗号分隔
+	DependencyTaskId string               `json:"dependency_task_id" xorm:"varchar(64) notnull default ''"`   // 依赖定时ID,多个ID逗号分隔
 	DependencyStatus TaskDependencyStatus `json:"dependency_status" xorm:"tinyint notnull default 1"`         // 依赖关系 1:强依赖 主任务执行成功, 依赖任务才会被执行 2:弱依赖
 	Spec             string               `json:"spec" xorm:"varchar(64) notnull"`                            // crontab
 	Protocol         TaskProtocol         `json:"protocol" xorm:"tinyint notnull index"`                      // 协议 1:http 2:系统命令
@@ -157,7 +158,7 @@ func (task *Task) setHostsForTasks(tasks []Task) ([]Task, error) {
 	return tasks, err
 }
 
-// 判断任务名称是否存在
+// 判断定时名称是否存在
 func (task *Task) NameExist(name string, id int) (bool, error) {
 	if id > 0 {
 		count, err := Db.Where("name = ? AND status = ? AND id != ?", name, Enabled, id).Count(task)
@@ -243,6 +244,24 @@ func (task *Task) Total(params CommonMap) (int64, error) {
 	return int64(len(list)), err
 }
 
+func (task *Task) TagList() ([]string, error) {
+	session := Db.Table(task).Distinct("tag").Cols("tag").Where("tag <> ''").Asc("tag")
+	list := make([]Task, 0)
+	err := session.Limit(100).Find(&list)
+	if err != nil {
+		return nil, err
+	}
+	tags := make([]string, 0, len(list))
+	for _, item := range list {
+		tag := strings.TrimSpace(item.Tag)
+		if tag == "" {
+			continue
+		}
+		tags = append(tags, tag)
+	}
+	return tags, nil
+}
+
 // 解析where
 func (task *Task) parseWhere(session *xorm.Session, params CommonMap) {
 	if len(params) == 0 {
@@ -260,6 +279,15 @@ func (task *Task) parseWhere(session *xorm.Session, params CommonMap) {
 	if ok && name.(string) != "" {
 		session.And("t.name LIKE ?", "%"+name.(string)+"%")
 	}
+	keyword, ok := params["Keyword"]
+	if ok && strings.TrimSpace(keyword.(string)) != "" {
+		k := strings.TrimSpace(keyword.(string))
+		if id, err := strconv.Atoi(k); err == nil && id > 0 {
+			session.And("(t.id = ? OR t.name LIKE ?)", id, "%"+k+"%")
+		} else {
+			session.And("t.name LIKE ?", "%"+k+"%")
+		}
+	}
 	protocol, ok := params["Protocol"]
 	if ok && protocol.(int) > 0 {
 		session.And("protocol = ?", protocol)
@@ -270,7 +298,7 @@ func (task *Task) parseWhere(session *xorm.Session, params CommonMap) {
 	}
 
 	tag, ok := params["Tag"]
-	if ok && tag.(string) != "" {
-		session.And("tag = ? ", tag)
+	if ok && strings.TrimSpace(tag.(string)) != "" {
+		session.And("t.tag LIKE ? ", "%"+strings.TrimSpace(tag.(string))+"%")
 	}
 }

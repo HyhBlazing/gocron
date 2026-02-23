@@ -10,9 +10,8 @@ import (
 
 func Index(ctx *macaron.Context) string {
 	loginLogModel := new(models.LoginLog)
-	params := models.CommonMap{}
-	base.ParsePageAndPageSize(ctx, params)
-	total, err := loginLogModel.Total()
+	params := parseQueryParams(ctx)
+	total, err := loginLogModel.Total(params)
 	if err != nil {
 		logger.Error(err)
 	}
@@ -27,4 +26,28 @@ func Index(ctx *macaron.Context) string {
 		"total": total,
 		"data":  loginLogs,
 	})
+}
+
+func Usernames(ctx *macaron.Context) string {
+	userModel := new(models.User)
+	list, err := userModel.NameList(ctx.QueryTrim("keyword"))
+	jsonResp := utils.JsonResponse{}
+	if err != nil {
+		logger.Error(err)
+		return jsonResp.CommonFailure("查询用户名失败", err)
+	}
+	if list == nil {
+		list = make([]string, 0)
+	}
+	return jsonResp.Success(utils.SuccessContent, list)
+}
+
+func parseQueryParams(ctx *macaron.Context) models.CommonMap {
+	params := models.CommonMap{}
+	params["Username"] = ctx.QueryTrim("username")
+	params["Ip"] = ctx.QueryTrim("ip")
+	params["StartTime"] = ctx.QueryTrim("start_time")
+	params["EndTime"] = ctx.QueryTrim("end_time")
+	base.ParsePageAndPageSize(ctx, params)
+	return params
 }

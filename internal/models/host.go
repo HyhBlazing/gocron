@@ -1,6 +1,8 @@
 package models
 
 import (
+	"strings"
+
 	"github.com/go-xorm/xorm"
 )
 
@@ -88,7 +90,11 @@ func (host *Host) parseWhere(session *xorm.Session, params CommonMap) {
 		session.And("id = ?", id)
 	}
 	name, ok := params["Name"]
-	if ok && name.(string) != "" {
-		session.And("name = ?", name)
+	if ok && strings.TrimSpace(name.(string)) != "" {
+		session.And("name LIKE ?", "%"+strings.TrimSpace(name.(string))+"%")
+	}
+	alias, ok := params["Alias"]
+	if ok && strings.TrimSpace(alias.(string)) != "" {
+		session.And("alias LIKE ?", "%"+strings.TrimSpace(alias.(string))+"%")
 	}
 }

@@ -38,7 +38,7 @@ func run() {
 			logger.Errorf("#notify#参数不完整#%+v", msg)
 			continue
 		}
-		msg["content"] = fmt.Sprintf("============\n============\n============\n任务名称: %s\n状态: %s\n输出:\n %s\n", msg["name"], msg["status"], msg["output"])
+		msg["content"] = fmt.Sprintf("============\n============\n============\n定时名称: %s\n状态: %s\n输出:\n %s\n", msg["name"], msg["status"], msg["output"])
 		logger.Debugf("%+v", msg)
 		switch taskType.(int8) {
 		case 1:
@@ -69,7 +69,6 @@ func parseNotifyTemplate(notifyTemplate string, msg Message) string {
 		"TaskName": msg["name"],
 		"Status":   msg["status"],
 		"Result":   msg["output"],
-		"Remark": msg["remark"],
 	})
 
 	return buf.String()

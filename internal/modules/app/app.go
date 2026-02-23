@@ -42,10 +42,19 @@ func InitEnv(versionString string) {
 	if err != nil {
 		logger.Fatal(err)
 	}
-	ConfDir = filepath.Join(AppDir, "/conf")
-	LogDir = filepath.Join(AppDir, "/log")
-	AppConfig = filepath.Join(ConfDir, "/app.ini")
-	VersionFile = filepath.Join(ConfDir, "/.version")
+
+	wd, _ := os.Getwd()
+
+	// Priority 1: Check if 'conf' exists in the current working directory (where the binary likely is)
+	if utils.FileExist(filepath.Join(wd, "conf")) {
+		AppDir = wd
+	}
+
+	ConfDir = filepath.Join(AppDir, "conf")
+	LogDir = filepath.Join(AppDir, "log")
+	AppConfig = filepath.Join(ConfDir, "app.ini")
+	VersionFile = filepath.Join(ConfDir, ".version")
+
 	createDirIfNotExists(ConfDir, LogDir)
 	Installed = IsInstalled()
 	VersionId = ToNumberVersion(versionString)
@@ -53,12 +62,17 @@ func InitEnv(versionString string) {
 
 // IsInstalled 判断应用是否已安装
 func IsInstalled() bool {
-	_, err := os.Stat(filepath.Join(ConfDir, "/install.lock"))
-	if os.IsNotExist(err) {
-		return false
+	lockFile := filepath.Join(ConfDir, "install.lock")
+	_, err := os.Stat(lockFile)
+	if err == nil {
+		return true
+	}
+	_, err = os.Stat(AppConfig)
+	if err == nil {
+		return true
 	}
 
-	return true
+	return false
 }
 
 // CreateInstallLock 创建安装锁文件

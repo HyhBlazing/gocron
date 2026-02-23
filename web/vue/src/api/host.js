@@ -1,9 +1,8 @@
 import httpClient from '../utils/httpClient'
 
 export default {
-  // 任务列表
-  list (query, callback) {
-    httpClient.get('/host', query, callback)
+  list (query, callback, onError) {
+    httpClient.get('/host', query, callback, onError)
   },
 
   all (query, callback) {

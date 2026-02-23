@@ -196,8 +196,8 @@ func Ping(ctx *macaron.Context) string {
 // 解析查询参数
 func parseQueryParams(ctx *macaron.Context) models.CommonMap {
 	var params = models.CommonMap{}
-	params["Id"] = ctx.QueryInt("id")
 	params["Name"] = ctx.QueryTrim("name")
+	params["Alias"] = ctx.QueryTrim("alias")
 	base.ParsePageAndPageSize(ctx, params)
 
 	return params

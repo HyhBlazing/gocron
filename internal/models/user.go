@@ -1,8 +1,10 @@
 package models
 
 import (
+	"strings"
 	"time"
 
+	"github.com/go-xorm/xorm"
 	"github.com/ouqiang/gocron/internal/modules/utils"
 )
 
@@ -103,13 +105,55 @@ func (user *User) EmailExists(email string, uid int) (int64, error) {
 func (user *User) List(params CommonMap) ([]User, error) {
 	user.parsePageAndPageSize(params)
 	list := make([]User, 0)
-	err := Db.Desc("id").Limit(user.PageSize, user.pageLimitOffset()).Find(&list)
+	session := Db.NewSession().Desc("id")
+	user.parseWhere(session, params)
+	err := session.Limit(user.PageSize, user.pageLimitOffset()).Find(&list)
 
 	return list, err
 }
 
-func (user *User) Total() (int64, error) {
-	return Db.Count(user)
+func (user *User) Total(params CommonMap) (int64, error) {
+	session := Db.NewSession()
+	user.parseWhere(session, params)
+	return session.Count(user)
+}
+
+func (user *User) NameList(keyword string) ([]string, error) {
+	result := make([]User, 0)
+	session := Db.Table(user).Distinct("name").Cols("name").Where("name <> ''").Asc("name")
+	if strings.TrimSpace(keyword) != "" {
+		session.And("name LIKE ?", "%"+strings.TrimSpace(keyword)+"%")
+	}
+	err := session.Limit(50).Find(&result)
+	if err != nil {
+		return nil, err
+	}
+	list := make([]string, 0, len(result))
+	for _, item := range result {
+		if strings.TrimSpace(item.Name) == "" {
+			continue
+		}
+		list = append(list, item.Name)
+	}
+	return list, nil
+}
+
+func (user *User) parseWhere(session *xorm.Session, params CommonMap) {
+	if len(params) == 0 {
+		return
+	}
+	name, ok := params["Name"]
+	if ok && strings.TrimSpace(name.(string)) != "" {
+		session.And("name LIKE ?", "%"+strings.TrimSpace(name.(string))+"%")
+	}
+	email, ok := params["Email"]
+	if ok && strings.TrimSpace(email.(string)) != "" {
+		session.And("email LIKE ?", "%"+strings.TrimSpace(email.(string))+"%")
+	}
+	isAdmin, ok := params["IsAdmin"]
+	if ok && isAdmin.(int) >= 0 {
+		session.And("is_admin = ?", isAdmin)
+	}
 }
 
 // 密码加密

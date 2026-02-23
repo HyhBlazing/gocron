@@ -76,7 +76,7 @@ func (tc *TaskCount) Wait() {
 	close(tc.exit)
 }
 
-// 任务ID作为Key
+// 定时ID作为Key
 type Instance struct {
 	m sync.Map
 }
@@ -151,7 +151,7 @@ func (task Task) RemoveAndAdd(taskModel models.Task) {
 // 添加任务
 func (task Task) Add(taskModel models.Task) {
 	if taskModel.Level == models.TaskLevelChild {
-		logger.Errorf("添加任务失败#不允许添加子任务到调度器#任务Id-%d", taskModel.Id)
+		logger.Errorf("添加任务失败#不允许添加子任务到调度器#定时ID-%d", taskModel.Id)
 		return
 	}
 	taskFunc := createJob(taskModel)
@@ -275,7 +275,7 @@ func (h *RPCHandler) Run(taskModel models.Task, taskUniqueId int64) (result stri
 	return aggregationResult, aggregationErr
 }
 
-// 创建任务日志
+// 创建定时日志
 func createTaskLog(taskModel models.Task, status models.Status) (int64, error) {
 	taskLogModel := new(models.TaskLog)
 	taskLogModel.TaskId = taskModel.Id
@@ -298,7 +298,7 @@ func createTaskLog(taskModel models.Task, status models.Status) (int64, error) {
 	return insertId, err
 }
 
-// 更新任务日志
+// 更新定时日志
 func updateTaskLog(taskLogId int64, taskResult TaskResult) (int64, error) {
 	taskLogModel := new(models.TaskLog)
 	var status models.Status
@@ -367,7 +367,7 @@ func beforeExecJob(taskModel models.Task) (taskLogId int64) {
 	}
 	taskLogId, err := createTaskLog(taskModel, models.Running)
 	if err != nil {
-		logger.Error("任务开始执行#写入任务日志失败-", err)
+		logger.Error("任务开始执行#写入定时日志失败-", err)
 		return
 	}
 	logger.Debugf("任务命令-%s", taskModel.Command)
@@ -379,7 +379,7 @@ func beforeExecJob(taskModel models.Task) (taskLogId int64) {
 func afterExecJob(taskModel models.Task, taskResult TaskResult, taskLogId int64) {
 	_, err := updateTaskLog(taskLogId, taskResult)
 	if err != nil {
-		logger.Error("任务结束#更新任务日志失败-", err)
+		logger.Error("任务结束#更新定时日志失败-", err)
 	}
 
 	// 发送邮件
@@ -403,7 +403,7 @@ func execDependencyTask(taskModel models.Task, taskResult TaskResult) {
 
 	// 父子任务关系为强依赖, 父任务执行失败, 不执行依赖任务
 	if taskModel.DependencyStatus == models.TaskDependencyStatusStrong && taskResult.Err != nil {
-		logger.Infof("父子任务为强依赖关系, 父任务执行失败, 不运行依赖任务#主任务ID-%d", taskModel.Id)
+		logger.Infof("父子任务为强依赖关系, 父任务执行失败, 不运行依赖任务#主定时ID-%d", taskModel.Id)
 		return
 	}
 
@@ -411,14 +411,14 @@ func execDependencyTask(taskModel models.Task, taskResult TaskResult) {
 	model := new(models.Task)
 	tasks, err := model.GetDependencyTaskList(dependencyTaskId)
 	if err != nil {
-		logger.Errorf("获取依赖任务失败#主任务ID-%d#%s", taskModel.Id, err.Error())
+		logger.Errorf("获取依赖任务失败#主定时ID-%d#%s", taskModel.Id, err.Error())
 		return
 	}
 	if len(tasks) == 0 {
-		logger.Errorf("依赖任务列表为空#主任务ID-%d", taskModel.Id)
+		logger.Errorf("依赖任务列表为空#主定时ID-%d", taskModel.Id)
 	}
 	for _, task := range tasks {
-		task.Spec = fmt.Sprintf("依赖任务(主任务ID-%d)", taskModel.Id)
+		task.Spec = fmt.Sprintf("依赖任务(主定时ID-%d)", taskModel.Id)
 		ServiceTask.Run(task)
 	}
 }
@@ -456,7 +456,6 @@ func SendNotification(taskModel models.Task, taskResult TaskResult) {
 		"output":           taskResult.Result,
 		"status":           statusName,
 		"task_id":          taskModel.Id,
-		"remark":  			taskModel.Remark,
 	}
 	notify.Push(msg)
 }
@@ -483,7 +482,7 @@ func execJob(handler Handler, taskModel models.Task, taskUniqueId int64) TaskRes
 		}
 		i++
 		if i < execTimes {
-			logger.Warnf("任务执行失败#任务id-%d#重试第%d次#输出-%s#错误-%s", taskModel.Id, i, output, err.Error())
+			logger.Warnf("任务执行失败#定时ID-%d#重试第%d次#输出-%s#错误-%s", taskModel.Id, i, output, err.Error())
 			if taskModel.RetryInterval > 0 {
 				time.Sleep(time.Duration(taskModel.RetryInterval) * time.Second)
 			} else {
