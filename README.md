@@ -12,7 +12,7 @@ Modified by Blazing 2026
 
 [![Downloads](https://img.shields.io/github/downloads/HyhBlazing/gocron/total.svg)](https://github.com/HyhBlazing/gocron/releases)
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)](https://github.com/HyhBlazing/gocron/blob/master/LICENSE)
-[![Release](https://img.shields.io/github/release/ouqiang/gocron.svg?label=Release)](https://github.com/HyhBlazing/gocron/releases)
+[![Release](https://img.shields.io/github/release/HyhBlazing/gocron.svg?label=Release)](https://github.com/HyhBlazing/gocron/releases)
 
 # 项目简介
 
@@ -125,40 +125,3 @@ Modified by Blazing 2026
 - 统计
   - 查询所有定时总数、日志总数、用户总数、登录日志总数
   - 也有部分分析的，可以看图。
-
-## v1.5
-
-- 前端使用Vue+ElementUI重构
-- 任务通知
-  - 新增WebHook通知
-  - 自定义通知模板
-  - 匹配任务执行结果关键字发送通知
-- 任务列表页显示任务下次执行时间
-
-## v1.4
-
-- HTTP任务支持POST请求
-- 后台手动停止运行中的shell任务
-- 任务执行失败重试间隔时间支持用户自定义
-- 修复API接口调用报403错误
-
-## v1.3
-
-- 支持多用户登录
-- 增加用户权限控制
-
-## v1.2.2
-
-- 用户登录页增加图形验证码
-- 支持从旧版本升级
-- 任务批量开启、关闭、删除
-- 调度器与任务节点支持HTTPS双向认证
-- 修复任务列表页总记录数显示错误
-
-## v1.1
-
-- 任务可同时在多个节点上运行
-- \*nix平台默认禁止以root用户运行任务节点
-- 子任务命令中增加预定义占位符, 子任务可根据主任务运行结果执行相应操作
-- 删除守护进程模块
-- Web访问日志输出到终端
