@@ -10,7 +10,7 @@ Modified by Blazing 2026
 
 # gocron - 定时任务管理系统
 
-[![Downloads](https://img.shields.io/github/downloads/ouqiang/gocron/total.svg)](https://github.com/HyhBlazing/gocron/releases)
+[![Downloads](https://img.shields.io/github/downloads/HyhBlazing/gocron/total.svg)](https://github.com/HyhBlazing/gocron/releases)
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)](https://github.com/HyhBlazing/gocron/blob/master/LICENSE)
 [![Release](https://img.shields.io/github/release/ouqiang/gocron.svg?label=Release)](https://github.com/HyhBlazing/gocron/releases)
 
