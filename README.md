@@ -39,20 +39,28 @@ Modified by Blazing 2026
 ### 截图
 
 ![流程图](https://raw.githubusercontent.com/ouqiang/gocron/master/assets/screenshot/scheduler.png)
+
 所有定时列表
 <img width="2561" height="1919" alt="image" src="https://github.com/user-attachments/assets/a369bdce-dab7-4bd1-b81e-15cacbfb3b32" />
+
 定时详情
 <img width="1332" height="568" alt="image" src="https://github.com/user-attachments/assets/904bf962-8bd8-42a1-bd7c-7b961bcad242" />
+
 定时列表日志
 <img width="1534" height="971" alt="image" src="https://github.com/user-attachments/assets/91d83cc2-7bd4-4031-a175-8118c429f214" />
+
 定时编辑
 <img width="2561" height="1919" alt="image" src="https://github.com/user-attachments/assets/f6ca99ab-19bc-4d24-a50b-cbad2d041617" />
+
 定时日志列表
 <img width="2561" height="1919" alt="image" src="https://github.com/user-attachments/assets/4059b097-56ff-4ecb-b3f9-04f6c102d501" />
+
 定时日志详情
 <img width="1205" height="526" alt="image" src="https://github.com/user-attachments/assets/e3933132-5ec1-42b9-a1c4-b904a92851cd" />
+
 定时日志执行结果
 <img width="1222" height="540" alt="image" src="https://github.com/user-attachments/assets/d8e0ba88-cc92-4f21-9fb9-b527a2475be2" />
+
 统计部分
 <img width="2561" height="1919" alt="image" src="https://github.com/user-attachments/assets/fdb31d76-affd-48f6-a85c-585aa2d6e6f8" />
 
